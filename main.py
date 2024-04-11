@@ -8,7 +8,7 @@ def init():
 
     for branch in branchAdresses:
         branch_split = branch.split("\n")[0]
-        branches.append(bin(int(branch_split,2)))
+        branches.append(int(branch_split,2))
 
 
 
@@ -18,38 +18,32 @@ def init():
 
     for predict in predictions_file:
         predict_split = predict.split("\n")[0]
-        predictions.append(bin(int(predict_split,2)))
+        predictions.append(int(predict_split,2))
 
 
     return branches, predictions
 
 
-def branchPredictor(taken):
+def branch_predictor(taken):
     branches, predictions = init()
 
-    randomBranch = random.getrandbits(10)
+    rand_str =  "0b" + "".join(str(random.randint(0, 1)) for _ in range(10))
+
+    randomBranch =int(rand_str, 2)
     for branch in branches:
 
-        memoryValue = branch ^ randomBranch
+        memoryValue = (branch ^ randomBranch) % 1024
         if taken == True:
-            if predictions[memoryValue] == 0b00:
-                predictions[memoryValue] = 0b01
-            if predictions[memoryValue] == 0b01:
-                predictions[memoryValue] = 0b10
-            if predictions[memoryValue] == 0b10:
-                predictions[memoryValue] = 0b11
+            if predictions[memoryValue] < 3:
+                predictions[memoryValue] += 1
         else:
-            if predictions[memoryValue] == 0b01:
-                predictions[memoryValue] = 0b00
-            if predictions[memoryValue] == 0b10:
-                predictions[memoryValue] = 0b01
-            if predictions[memoryValue] == 0b11:
-                predictions[memoryValue] = 0b10
+            if predictions[memoryValue] > 0:
+                predictions[memoryValue] -= 1
 
-    lines = predictions
 
-    with open("Predictions.txt", "w") as file:
-        file.writelines(str(lines))
+    file = open("predictions.txt", "w")
+    for entries in predictions:
+        file.writelines(f"{bin(entries)}\n")
 
 
 def random_10_bit():
@@ -61,7 +55,7 @@ def random_2_bit():
 
 
 def generate_branches():
-    lines = [random_10_bit() + '\n' for _ in range(2000)]
+    lines = [random_10_bit() + '\n' for _ in range(5000)]
 
     with open("Branches.txt", "w") as file:
         file.writelines(lines)
@@ -72,5 +66,4 @@ def generate_predictions():
 
     with open("Predictions.txt", "w") as file:
         file.writelines(lines)
-
-branchPredictor(False)
+branch_predictor(False)
