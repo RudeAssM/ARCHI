@@ -11,6 +11,7 @@ def init():
         branches.append(bin(int(branch_split,2)))
 
 
+
     # accessing file for prediction register
     predictions = list()
     predictions_file = open("Predictions.txt", "r")
